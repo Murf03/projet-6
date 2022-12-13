@@ -1,11 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
+require('dotenv').config();
 
-const SauceModel = require('./models/Sauce');
+const SaucesRoutes = require('./routes/sauces');
+const UsersRoutes = require('./routes/users');
 
 
 //.env pour url
-mongoose.connect('mongodb+srv://murf:Murphy123@p6oc.fwz5unu.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect(process.env.DB_LINK,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
@@ -15,71 +19,25 @@ mongoose.connect('mongodb+srv://murf:Murphy123@p6oc.fwz5unu.mongodb.net/?retryWr
 
 const app = express();
 
+
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Authorization');
+    res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
 });
 
-app.use(express.json());
-var cors = require('cors');
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.post('/api/auth/signup', (req, res, next) => {
-    console.log(req.body);
-    res.status(201)
-    res.json({
-        message: 'Compte créé'
-    });
-});
 
-app.post('/api/auth/login', (req, res, next) => {
-    console.log(req.body);
-    res.status(200).json({
-        message: 'vous êtes Connecté.e'
-    });
-});
+app.use('/api/sauces', SaucesRoutes);
 
-app.post('/api/sauces', (req, res, next) => {
-    console.log(req.body);
-    const sauce = new SauceModel({
-        ...req.body
-    });
-    sauce.save()
-        .then(() => res.status(201).json({ message: 'Sauce ajoutée !' }))
-        .catch(error => res.status(400).json({ error }));
-});
+app.use('/api/auth', UsersRoutes);
 
-app.get('/api/sauces/:id', (req, res, next) => {
-    SauceModel.findOne({ _id: req.params.id })
-        .then(sauce => res.status(200).json(sauce))
-        .catch(error => res.status(400).json({ error }));
-});
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.delete('/api/sauces/:id', (req, res, next) => {
-    SauceModel.findOne({ _id: req.params.id })
-        .then(sauce => res.status(200).json(sauce))
-        .catch(error => res.status(400).json({ error }));
-});
-
-app.get('/api/sauces', (req, res, next) => {
-    SauceModel.find()
-        .then(sauces => res.status(200).json(sauces))
-        .catch(error => res.status(400).json({ error }));
-});
-
-app.get('/api/sauces/:id/like', (req, res, next) => {
-    SauceModel.findOne({ _id: req.params.id })
-        .then(sauce => res.status(200).json(sauce))
-        .catch(error => res.status(400).json({ error }));
-    next();
-});
-
-// app.put('/api/sauces/:id', (req, res, next) => {
-//     SauceModel.findOne({ _id: req.params.id })
-//         .then(sauce => res.status(200).json(sauce))
-//         .catch(error => res.status(400).json({ error }));
-// });
 
 module.exports = app;

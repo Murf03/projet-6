@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 
 const sauceSchema = mongoose.Schema({
-    userId: { type: String },
-    name: { type: String },
-    manufacturer: { type: String },
-    description: { type: String },
-    mainPepper: { type: String },
-    imageUrl: { type: String },
-    heat: { type: Number },
-    likes: { type: Number },
-    dislikes: { type: Number },
+    userId: { type: String, minLength: 5, maxLength: 25 },
+    name: { type: String, required: true, minLength: 3, maxLength: 25 },
+    manufacturer: { type: String, required: true, minLength: 3, maxLength: 15 },
+    description: { type: String, required: true, minLength: 5, maxLength: 120 },
+    mainPepper: { type: String, required: true, minLength: 3, maxLength: 20 },
+    imageUrl: { type: String, required: true, minLength: 10 },
+    heat: { type: Number, required: true, min: 1, max: 10 },
+    likes: { type: Number, required: true, default: 0, min: 0 },
+    dislikes: { type: Number, required: true, default: 0, min: 0 },
     usersLiked: { type: Array },
     usersDisliked: { type: Array },
 });
