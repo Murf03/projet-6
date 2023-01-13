@@ -1,26 +1,41 @@
 const bcrypt = require('bcrypt');
 const cryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
+const email_valid = require('email-validator');
+const pw_valid = require('password-validator');
 
 const userModel = require('../models/user');
 
+var schema = new pw_valid();
+
+schema
+    .is().min(3)
+    .is().max(20)
+    .has().uppercase()
+    .has().lowercase()
+    .has().digits(2)
+    .has().not().spaces()
+    .is().not().oneOf(['Passw0rd', 'Password123']);
+
 exports.signUp = (req, res, next) => {
-    const mailTest = cryptoJS.MD5(req.body.email).toString();
-    bcrypt.hash(req.body.password, Number(process.env.HASH_SALT))
-        .then(hash => {
-            const user = new userModel({
-                email: mailTest,
-                password: hash
-            });
-            user.save()
-                .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-                .catch(error => res.status(400).json({ error }));
-        })
-        .catch(error => res.status(500).json({ error }));
+    if (email_valid.validate(req.body.email) && schema.validate(req.body.password)) {
+        const mailTest = cryptoJS.HmacSHA256(req.body.email, process.env.EMAIL_SALT).toString();
+        bcrypt.hash(req.body.password, Number(process.env.HASH_SALT))
+            .then(hash => {
+                const user = new userModel({
+                    email: mailTest,
+                    password: hash
+                });
+                user.save()
+                    .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+                    .catch(error => res.status(400).json({ error }));
+            })
+            .catch(error => res.status(500).json({ error }));
+    }
 }
 
 exports.logIn = (req, res, next) => {
-    const mailTest = cryptoJS.MD5(req.body.email).toString();
+    const mailTest = cryptoJS.HmacSHA256(req.body.email, process.env.EMAIL_SALT).toString();
     userModel.findOne({ email: mailTest })
         .then(user => {
             if (!user) {

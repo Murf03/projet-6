@@ -2,6 +2,7 @@ const { error } = require('console');
 const fs = require('fs');
 const Sauce = require('../models/sauce');
 const sauceModel = require('../models/sauce');
+const logger = require('../conf/winston_conf');
 
 
 exports.createSauce = (req, res, next) => {
@@ -20,7 +21,11 @@ exports.createSauce = (req, res, next) => {
         });
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce ajoutée !' }))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => {
+            logger.error(`Create sauce : Erreur ${error}`);
+            res.status(400).json({ error })
+        }
+        );
 }
 
 exports.modifySauce = (req, res, next) => {
