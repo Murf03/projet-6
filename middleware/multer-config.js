@@ -1,7 +1,7 @@
 const multer = require('multer');
 const fs = require('fs')
 
-const dir = process.env.DOWNLOAD_DIRECTORY;
+const dir = `./${process.env.DOWNLOAD_DIRECTORY_NAME}`;
 
 if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);

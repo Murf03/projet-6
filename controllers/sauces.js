@@ -3,6 +3,9 @@ const fs = require('fs');
 //const Sauce = require('../models/sauce');
 const sauceModel = require('../models/sauce');
 const logger = require('../conf/winston_conf');
+require('dotenv').config();
+
+const dir = `${process.env.DOWNLOAD_DIRECTORY_NAME}`;
 
 
 exports.createSauce = (req, res, next) => {
@@ -16,7 +19,7 @@ exports.createSauce = (req, res, next) => {
             manufacturer: sauceData.manufacturer,
             description: sauceData.description,
             mainPepper: sauceData.mainPepper,
-            imageUrl: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`,
+            imageUrl: `${req.protocol}://${req.get('host')}/$/${req.file.filename}`,
             heat: sauceData.heat,
         });
     sauce.save()
@@ -34,7 +37,7 @@ exports.createSauce = (req, res, next) => {
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
-        imageUrl: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/${dir}/${req.file.filename}`
     } : { ...req.body };
 
     delete sauceObject._userId;
@@ -45,8 +48,8 @@ exports.modifySauce = (req, res, next) => {
                 res.status(403).json({ message: 'Non authorisé !' });
             } else {
                 if (req.file) {
-                    const filename = sauce.imageUrl.split('/uploads/')[1];
-                    fs.unlink(`uploads/${filename}`, () => {
+                    const filename = sauce.imageUrl.split(`/${dir}/`)[1];
+                    fs.unlink(`${dir}/${filename}`, () => {
                         sauceModel
                             .updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
                             .then(() => {
@@ -93,8 +96,8 @@ exports.deleteSauce = (req, res, next) => {
         .findOne({ _id: req.params.id })
         .then(sauce => {
             if (sauce.userId == req.auth.userId) {
-                const filename = sauce.imageUrl.split('/uploads/')[1];
-                fs.unlink(`uploads/${filename}`, () => {
+                const filename = sauce.imageUrl.split(`/${dir}/`)[1];
+                fs.unlink(`${dir}/${filename}`, () => {
                     sauce.deleteOne({ _id: req.params.id })
                         .then(() => {
                             logger.info("Sauce supprimée :");
