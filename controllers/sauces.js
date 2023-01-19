@@ -20,7 +20,10 @@ exports.createSauce = (req, res, next) => {
             heat: sauceData.heat,
         });
     sauce.save()
-        .then(() => res.status(201).json({ message: 'Sauce ajoutée !' }))
+        .then(() => {
+            logger.info("Sauce ajoutée !");
+            res.status(201).json({ message: 'Sauce ajoutée !' })
+        })
         .catch(error => {
             logger.error(`Create sauce : Erreur ${error}`);
             res.status(400).json({ error })
@@ -46,15 +49,27 @@ exports.modifySauce = (req, res, next) => {
                     fs.unlink(`uploads/${filename}`, () => {
                         sauceModel
                             .updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-                            .then(() => res.status(200).json({ message: 'Sauce modifiée !' }))
-                            .catch(error => res.status(401).json({ error }));
+                            .then(() => {
+                                logger.info("Sauce modifiée !");
+                                res.status(200).json({ message: 'Sauce modifiée !' })
+                            })
+                            .catch(error => {
+                                logger.error(`Modify Sauce : Erreur ${error}`);
+                                res.status(401).json({ error })
+                            });
                     });
                 }
                 else {
                     sauceModel
                         .updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-                        .then(() => res.status(200).json({ message: 'Sauce modifiée !' }))
-                        .catch(error => res.status(401).json({ error }));
+                        .then(() => {
+                            logger.info("Sauce modifiée !");
+                            res.status(200).json({ message: 'Sauce modifiée !' })
+                        })
+                        .catch(error => {
+                            logger.error(`Modify Sauce : Erreur ${error}`);
+                            res.status(401).json({ error })
+                        });
                 }
             }
         })
@@ -67,7 +82,10 @@ exports.findSauce = (req, res, next) => {
     sauceModel
         .findOne({ _id: req.params.id })
         .then(sauce => res.status(200).json(sauce))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => {
+            logger.error(`Find Sauce : Erreur ${error}`);
+            res.status(400).json({ error })
+        });
 }
 
 exports.deleteSauce = (req, res, next) => {
@@ -78,22 +96,35 @@ exports.deleteSauce = (req, res, next) => {
                 const filename = sauce.imageUrl.split('/uploads/')[1];
                 fs.unlink(`uploads/${filename}`, () => {
                     sauce.deleteOne({ _id: req.params.id })
-                        .then(() => { res.status(200).json({ message: 'Sauce supprimée !' }) })
-                        .catch(error => res.status(401).json({ error }));
+                        .then(() => {
+                            logger.info("Sauce supprimée :");
+                            res.status(200).json({ message: 'Sauce supprimée !' })
+                        })
+                        .catch(error => {
+                            logger.error(`Delete Sauce : Erreur ${error}`);
+                            res.status(401).json({ error })
+                        });
                 });
             }
             else {
+                logger.error(`Delete Sauce : Suppression non authorisée => ${error}`);
                 res.status(403).json({ message: 'Suppression non authorisée' });
             }
         })
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => {
+            logger.error(`Delete Sauce : Erreur ${error}`);
+            res.status(400).json({ error })
+        });
 }
 
 exports.getSauces = (req, res, next) => {
     sauceModel
         .find()
         .then(sauces => res.status(200).json(sauces))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => {
+            logger.error(`Get Sauces : Erreur ${error}`);
+            res.status(400).json({ error })
+        });
 }
 
 exports.like = (req, res, next) => {
