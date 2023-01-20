@@ -16,3 +16,13 @@
 
 ## Lancement
    - npm server / nodemon server / npx nodemon server
+
+
+## Utilisation
+   - Pour un mot de passe valide, il doit contenir :
+      * Minimum 3 characters
+      * Maximum 20 characters
+      * Pas d'espace
+      * Au moins 1 majuscule
+      * Au moins 1 minuscule
+      * Au moins 1 chiffre.
