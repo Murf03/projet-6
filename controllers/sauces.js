@@ -1,6 +1,5 @@
 const { error } = require('console');
 const fs = require('fs');
-//const Sauce = require('../models/sauce');
 const sauceModel = require('../models/sauce');
 const logger = require('../conf/winston_conf');
 require('dotenv').config();
@@ -19,7 +18,7 @@ exports.createSauce = (req, res, next) => {
             manufacturer: sauceData.manufacturer,
             description: sauceData.description,
             mainPepper: sauceData.mainPepper,
-            imageUrl: `${req.protocol}://${req.get('host')}/$/${req.file.filename}`,
+            imageUrl: `${req.protocol}://${req.get('host')}/${dir}/${req.file.filename}`,
             heat: sauceData.heat,
         });
     sauce.save()

@@ -39,12 +39,12 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); //permet de gérer les données postées par un formulaire
 app.use(express.urlencoded({ extended: true }));
 
 app.use(limiter);
 
-app.use(mongo_sanitize());
+app.use(mongo_sanitize()); //permet d'éviter l'injection de code
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: "same-site" } }));
 
@@ -52,7 +52,8 @@ app.use('/api/sauces', SaucesRoutes);
 
 app.use('/api/auth', UsersRoutes);
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const images = `${process.env.DOWNLOAD_DIRECTORY_NAME}`;
+app.use(`/${images}`, express.static(path.join(__dirname, images)));
 
 
 module.exports = app;

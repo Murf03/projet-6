@@ -18,7 +18,8 @@ const storage = multer.diskStorage({
         callback(null, process.env.DOWNLOAD_DIRECTORY_NAME);
     },
     filename: (req, file, callback) => {
-        const name = file.fieldname + '-';
+
+        const name = file.fieldname + '-'; // + req.auth.userId + '-'; peut être crypter l'ID
         const extension = MIME_TYPES[file.mimetype];
         callback(null, name + Date.now() + '.' + extension);
     }
